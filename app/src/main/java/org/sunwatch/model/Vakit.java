@@ -3,6 +3,7 @@ package org.sunwatch.model;
 import android.view.View;
 
 import org.sunwatch.view.DayView;
+import org.sunwatch.view.DayViewLegacy;
 
 import java.util.Date;
 
@@ -29,11 +30,11 @@ public class Vakit {
      
     // g�n ortas� ile namaz vakitleri aras�ndaki dakika fark� 
     float[] time = { -517, -415, 0, 207, 415, 511 };
-    int day = 5706;
-    int twelve = -68;  // g�n ortas� ile ��le 12 aras�ndaki dakika fark�  
-    DayView gui;
+    public int day = 5706;
+    public int twelve = -68;  // g�n ortas� ile ��le 12 aras�ndaki dakika fark�
+    DayViewLegacy gui;
     
-    public Vakit(DayView g) { gui = g; }
+    public Vakit(DayViewLegacy g) { gui = g; }
     public void setMethod(Method m) {
         meth = m; setDate(day, false);
     }
@@ -57,7 +58,7 @@ public class Vakit {
         System.out.print(date); 
         System.out.println(); 
     }
-    String ddMMyyyy() { return date; }
+    public String ddMMyyyy() { return date; }
     String HHmm() { return HHmmss().substring(0, 5); }
     String HHmmss() { return new Date().toString().split(" ")[3]; }
     public String toString() { return date +" "+ loc; }

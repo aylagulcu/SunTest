@@ -10,6 +10,7 @@ import android.widget.Spinner;
 
 import org.sunwatch.R;
 import org.sunwatch.view.DayView;
+import org.sunwatch.view.DayViewLegacy;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -30,8 +31,8 @@ public class MainActivity extends AppCompatActivity {
         populateModeSpinner();
 
         FrameLayout frameLayout = (FrameLayout) findViewById(R.id.frame);
-        frameLayout.addView(new DayView(this));
-
+        frameLayout.addView(new DayViewLegacy(this));
+//        frameLayout.addView(new DayView(this));
     }
 
     private void populateCitySpinner() {

@@ -47,7 +47,8 @@ public class DayView extends View {
     int[] curve ;
     static final String[] d2s = new String[24];
     static final SimpleDateFormat DATE = new SimpleDateFormat("dd/MM/yyyy");
-    final Vakit model = new Vakit(this);
+    final Vakit model = new Vakit(new DayViewLegacy(null));
+//final Vakit model = null;
 
 
     public DayView(Context context) {
