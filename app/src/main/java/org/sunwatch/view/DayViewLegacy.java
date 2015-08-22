@@ -21,10 +21,11 @@ import java.util.TimeZone;
 public class DayViewLegacy extends View{
 
     static final String
-            MSG = "G�n�m�z b�yle ge�iyor", FILE = "Vakit.txt",
-            TITLE = " i�in g�ne� saati -- ", VER = "Va0",
-            TIP = "<HTML>Mavi: sabah-ak�am <BR>Sar�: ��le-ikindi "
-                    +"<BR>Siyah: yats� <BR>K�rm�z�: kerahat";
+            MSG = "Günümüz büyle geçiyor",
+            FILE = "Vakit.txt",
+            TITLE = " için güneş saati -- ", VER = "Va0",
+            TIP = "<HTML>Mavi: sabah-akşam <BR>Sarı: Öğle-ikindi "
+                    +"<BR>Siyah: yatsı <BR>Kırmızı: kerahat";
 
     static final boolean WIDE = false;
     static final int
@@ -36,11 +37,7 @@ public class DayViewLegacy extends View{
             H2 = WIDE? 45 : 30,
             DELTA = WIDE? 12 : 8,
             SIZE = WIDE? 18 : 12;
-//    static final Font
-//            LARGE = new Font("Dialog", 0, 2*SIZE),
-//            NORM  = new Font("Dialog", 0, SIZE),
-//            MONO  = new Font("Monospaced", 1, SIZE),
-//            BOLD  = new Font("Dialog", 1, SIZE);
+
     static final int
             BLACK = Color.BLACK,
             BLUE  = Color.BLUE,
@@ -88,10 +85,12 @@ public class DayViewLegacy extends View{
         System.out.println("canvas.getClipBounds() : ");
         System.out.println(canvas.getClipBounds());
 
-        System.out.println("scale :"+ (canvas.getWidth()/720f) );
+        float scale = canvas.getWidth() / 720f;
+
+        System.out.println("scale :" + scale);
 
         canvas.save();
-        canvas.scale(canvas.getWidth() / 720f, 1f);
+        canvas.scale(scale, 1f);
 
         Paint p = new Paint();
 
@@ -117,10 +116,10 @@ public class DayViewLegacy extends View{
             drawTime(canvas);
         }
 
-
-
-
         canvas.restore();
+
+
+
     }
 
     void fillColor(int x2, int c) {
@@ -260,12 +259,12 @@ public class DayViewLegacy extends View{
         int y = curve[Math.abs(x)] - down;
         //System.out.printf("x=%s y=%s \n", x, y);
         Paint p2 = new Paint();
-        p2.setColor(NOON);
+        p2.setColor(Color.YELLOW);
         p2.setStyle(Paint.Style.FILL_AND_STROKE);
 
-        RectF rectF = new RectF( W + x - DELTA / 2, y - DELTA / 2, DELTA, DELTA);
-
+        RectF rectF = new RectF( W + x - DELTA / 2, y - DELTA / 2, DELTA+(W + x - DELTA / 2), DELTA+(y - DELTA / 2));
         canvas.drawOval(rectF, p2);
+
     }
     void drawClock(Canvas canvas, boolean night, int down) {
         Paint p = new Paint();
@@ -284,7 +283,7 @@ public class DayViewLegacy extends View{
                 if (y >= H1) y = H1 - 4/K;
             }
             canvas.drawText(d2s[c % 24], x - 12 / K, y - 10 / K, p);
-            canvas.drawRect(x - 1, y - 1, 4 / K, 4 / K, p);
+            canvas.drawRect(x - 1, y - 1, (4 / K)+(x-1) , (4 / K)+(y-1), p);
             c++; //if (c==12) System.out.printf("x=%s y=%s \n", x, y);
         }
         //System.out.printf("min=%s count=%s \n", min, c);

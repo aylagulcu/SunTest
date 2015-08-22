@@ -15,15 +15,16 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="203dp"
+            android:layout_height="189dp"
             android:layout_gravity="center_horizontal"
-            android:layout_weight="0.89"
-            android:id="@+id/frame"></FrameLayout>
+            android:id="@+id/frame"
+            android:layout_weight="0.83"></FrameLayout>
 
         <SeekBar
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:id="@+id/daySeekBar"
+            android:nestedScrollingEnabled="false"
             android:paddingLeft="0dp"
             android:paddingRight="0dp" />
 
@@ -31,31 +32,26 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="51dp"
-            android:layout_weight="0.03"
+            android:layout_weight="0.17"
             android:weightSum="1">
 
             <Spinner
                 android:layout_width="94dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/city_spinner" />
+                android:id="@+id/city_spinner"
+                android:layout_weight="0.20" />
 
             <Spinner
                 android:layout_width="104dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/day_spinner" />
+                android:id="@+id/day_spinner"
+                android:layout_weight="0.11" />
 
             <Spinner
-                android:layout_width="wrap_content"
+                android:layout_width="93dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/mode_spinner" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="29dp"
-            android:weightSum="1">
+                android:id="@+id/mode_spinner"
+                android:layout_weight="0.14" />
 
             <ImageButton
                 android:background="@null"
@@ -68,7 +64,7 @@
             <ImageButton
                 android:background="@null"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:id="@+id/imageButton2"
                 android:layout_weight="0.13"
                 android:clickable="true"
@@ -77,11 +73,14 @@
 
             <TextClock
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="41dp"
                 android:id="@+id/textClock"
                 android:format24Hour="hh:mm:ss"
-                android:layout_marginRight="0dp" />
+                android:layout_marginRight="0dp"
+                android:layout_weight="0.50" />
+
         </LinearLayout>
+
     </LinearLayout>
 
 </RelativeLayout>

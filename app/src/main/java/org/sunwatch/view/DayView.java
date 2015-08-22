@@ -17,11 +17,12 @@ import java.text.SimpleDateFormat;
  */
 public class DayView extends View {
 
-    final String
-            MSG = "G�n�m�z b�yle ge�iyor", FILE = "Vakit.txt",
-            TITLE = " i�in g�ne� saati -- ", VER = "Va0",
-            TIP = "<HTML>Mavi: sabah-ak�am <BR>Sar�: ��le-ikindi "
-                    +"<BR>Siyah: yats� <BR>K�rm�z�: kerahat";
+    static final String
+            MSG = "Günümüz büyle geçiyor",
+            FILE = "Vakit.txt",
+            TITLE = " için güneş saati -- ", VER = "Va0",
+            TIP = "<HTML>Mavi: sabah-akşam <BR>Sarı: Öğle-ikindi "
+                    +"<BR>Siyah: yatsı <BR>Kırmızı: kerahat";
     final boolean
             WIDE = false;
     int

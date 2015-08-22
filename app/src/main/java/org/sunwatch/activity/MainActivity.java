@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 
 import org.sunwatch.R;
@@ -33,6 +34,34 @@ public class MainActivity extends AppCompatActivity {
         FrameLayout frameLayout = (FrameLayout) findViewById(R.id.frame);
         frameLayout.addView(new DayViewLegacy(this));
 //        frameLayout.addView(new DayView(this));
+
+        SeekBar seekBar = (SeekBar) findViewById(R.id.daySeekBar);
+
+        seekBar.setProgress(50);
+
+        seekBar.setOnSeekBarChangeListener(
+                new SeekBar.OnSeekBarChangeListener() {
+                    int progress = 0;
+
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar,int progresValue, boolean fromUser) {
+                        progress = progresValue;
+                        System.out.println( "progress : "+ (progress) );
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+                        // Do something here,
+                        //if you want to do anything at the start of
+                        // touching the seekbar
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+                        // Display the value in textview
+
+                    }
+                });
     }
 
     private void populateCitySpinner() {
