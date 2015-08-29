@@ -4,14 +4,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 
 import org.sunwatch.R;
-import org.sunwatch.view.DayView;
+import org.sunwatch.model.Enums;
+import org.sunwatch.model.UIValueHolder;
+import org.sunwatch.util.Utility;
 import org.sunwatch.view.DayViewLegacy;
+import org.sunwatch.view.SunView;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -22,31 +27,47 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    List<String> locationList = new ArrayList<String>();
+    List<String> dateList = new ArrayList<String>();
+    List<String> modeList = new ArrayList<String>();
+    SunView sunView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        locationList.clear();
+        dateList.clear();
+        modeList.clear();
+
         populateCitySpinner();
         populateDaySpinner();
         populateModeSpinner();
 
+        UIValueHolder.model.setDate(Utility.getDate(dateList.get(0), "dd.MM.yyyy"));
+        UIValueHolder.model.setLocation(Enums.Location.values()[0]);
+        UIValueHolder.model.setMethod(Enums.Method.values()[0]);
+
         FrameLayout frameLayout = (FrameLayout) findViewById(R.id.frame);
         frameLayout.addView(new DayViewLegacy(this));
-//        frameLayout.addView(new DayView(this));
+        sunView = new SunView(this);
+
+
+        frameLayout.addView(sunView);
+
 
         SeekBar seekBar = (SeekBar) findViewById(R.id.daySeekBar);
-
         seekBar.setProgress(50);
-
         seekBar.setOnSeekBarChangeListener(
                 new SeekBar.OnSeekBarChangeListener() {
                     int progress = 0;
 
                     @Override
-                    public void onProgressChanged(SeekBar seekBar,int progresValue, boolean fromUser) {
+                    public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
                         progress = progresValue;
-                        System.out.println( "progress : "+ (progress) );
+//                        System.out.println( "progress : "+ (progress) );
+                        sunView.redraw(progress);
                     }
 
                     @Override
@@ -62,18 +83,33 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
+
+
+        final Spinner dateSpinner = (Spinner) findViewById(R.id.day_spinner);
+        dateSpinner.setOnItemSelectedListener(
+                new Spinner.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        String selectedDate =  dateSpinner.getSelectedItem().toString();
+                        UIValueHolder.model.setDate( Utility.getDate( selectedDate, "dd.MM.yyyy" ) );
+                        sunView.redraw();
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                }
+        );
     }
 
     private void populateCitySpinner() {
 
-        List<String> list = new ArrayList<String>();
-        list.add("Istanbul");
-        list.add("Ankara");
-        list.add("Mekke");
-        list.add("London");
-        list.add("Boston");
+        for(int i=0; i<Enums.Location.values().length; i++){
+            locationList.add( Enums.Location.values()[i].name() );
+        }
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, list);
+                android.R.layout.simple_spinner_item, locationList);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         Spinner citySpinner = (Spinner) findViewById(R.id.city_spinner);
         citySpinner.setAdapter(dataAdapter);
@@ -84,15 +120,15 @@ public class MainActivity extends AppCompatActivity {
         DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());
-        List<String> list = new ArrayList<String>();
+
 
         for( int i=0; i<4; i++ ){
             c.add(Calendar.DATE, 1);  // number of days to add
-            list.add( dateFormat.format( c.getTime() ) );
+            dateList.add( dateFormat.format( c.getTime() ) );
         }
 
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, list);
+                android.R.layout.simple_spinner_item, dateList);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         Spinner daySpinner = (Spinner) findViewById(R.id.day_spinner);
         daySpinner.setAdapter(dataAdapter);
@@ -100,11 +136,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void populateModeSpinner() {
 
-        List<String> list = new ArrayList<String>();
-        list.add("Normal");
-        list.add("Temkinli");
+
+        modeList.add("Normal");
+        modeList.add("Temkinli");
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, list);
+                android.R.layout.simple_spinner_item, modeList);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         Spinner modeSpinner = (Spinner) findViewById(R.id.mode_spinner);
         modeSpinner.setAdapter(dataAdapter);

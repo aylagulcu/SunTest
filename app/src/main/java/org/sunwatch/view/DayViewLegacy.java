@@ -7,7 +7,9 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.location.Location;
 import android.view.View;
+import android.widget.ImageView;
 
+import org.sunwatch.model.UIValueHolder;
 import org.sunwatch.model.Vakit;
 
 import java.io.Reader;
@@ -18,54 +20,22 @@ import java.util.TimeZone;
 /**
  * Created by gungor on 21/08/15.
  */
-public class DayViewLegacy extends View{
+public class DayViewLegacy extends ImageView{
 
-    static final String
-            MSG = "Günümüz büyle geçiyor",
-            FILE = "Vakit.txt",
-            TITLE = " için güneş saati -- ", VER = "Va0",
-            TIP = "<HTML>Mavi: sabah-akşam <BR>Sarı: Öğle-ikindi "
-                    +"<BR>Siyah: yatsı <BR>Kırmızı: kerahat";
 
-    static final boolean WIDE = false;
-    static final int
-            K = WIDE? 1 : 2,
-            W = 720/K,  //half width
-            GAP = WIDE? 15 : 10,
-            M = WIDE? 135 : 90, //used in cosine curve
-            H1 = WIDE? 300 : 200,
-            H2 = WIDE? 45 : 30,
-            DELTA = WIDE? 12 : 8,
-            SIZE = WIDE? 18 : 12;
-
-    static final int
-            BLACK = Color.BLACK,
-            BLUE  = Color.BLUE,
-            RED   = Color.RED,
-            NOON  = Color.YELLOW, //yellow
-            DARK  = Color.GRAY;  //dark yellow
-    static final int[] curve = new int[W];
-    static final String[] d2s = new String[24];
-    static final SimpleDateFormat DATE = new SimpleDateFormat("dd/MM/yyyy");
     static {
         // String[] used in drawClock()
-        for (int i=0; i<10; i++) d2s[i] = "0"+i;
-        for (int i=10; i<24; i++) d2s[i] = ""+i;
+        for (int i=0; i<10; i++) UIValueHolder.d2s[i] = "0"+i;
+        for (int i=10; i<24; i++) UIValueHolder.d2s[i] = ""+i;
         // cosine curve used in drawCurve()
-        for (int d=0; d<W; d++)
-            curve[d] = H1 - (int)Math.round(M*Math.cos(Math.PI*d/W));
+        for (int d=0; d<UIValueHolder.W; d++)
+            UIValueHolder.curve[d] = UIValueHolder.H1 - (int)Math.round(UIValueHolder.M*Math.cos(Math.PI*d/UIValueHolder.W));
         // for Java 6
         //java.util.TimeZone.setDefault(Location.DEFAULT.zone);
-        DATE.setTimeZone(TimeZone.getTimeZone("GMT"));
+        UIValueHolder.DATE.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
-    final int[] col = new int[W];
-    final int[] shade = new int[W];
-    final Vakit model = new Vakit(this);
-    Thread thd;
-    int state = 1;  // s<0 -> fast,  s=0 -> clock,  s>0 count down
-    int x;  // pixels since noon  -W<x<W  -- K*x in minutes
-    String alfa; // altitude -- uses C0, C1
+
 
 
     public DayViewLegacy(Context context) {
@@ -74,6 +44,8 @@ public class DayViewLegacy extends View{
         setState(0);
         setCurrentTime();  // initialize data
     }
+
+        Paint p = new Paint();
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -89,41 +61,47 @@ public class DayViewLegacy extends View{
 
         System.out.println("scale :" + scale);
 
+
         canvas.save();
         canvas.scale(scale, 1f);
 
-        Paint p = new Paint();
 
-        canvas.clipRect(0, 0, 2 * W + GAP, H1 + 2 * H2);
-        if (Math.abs(K*x) < v_aksam()) { // day
-            p.setColor(BLUE);
+        canvas.clipRect(0, 0, 2 * UIValueHolder.W + UIValueHolder.GAP, UIValueHolder.H1 + 2 * UIValueHolder.H2);
+        if (Math.abs(UIValueHolder.K*UIValueHolder.x) < v_aksam()) { // day
+            p.setColor(UIValueHolder.BLUE);
             p.setStyle(Paint.Style.FILL_AND_STROKE);
-            canvas.drawRect(0, 0, 2*W, H1,p);
+            canvas.drawRect(0, 0, 2*UIValueHolder.W, UIValueHolder.H1,p);
             try { // protection against unexpected errors
-                drawCurve(canvas); drawTime(canvas);
+                doColors();
+                drawCurve(canvas);
+                drawTime(canvas);
                 //drawShadow(g);  skip
+
             } catch (Exception e) {
                 System.out.printf("paint: %s \n", e);
                 e.printStackTrace();
             }
         } else { // night
-            int c = col[Math.abs(x)];
+            int c = UIValueHolder.col[Math.abs(UIValueHolder.x)];
             //System.out.printf("%s: x=%s %s\n", VER, x, c);
             Paint p2 = new Paint();
             p2.setColor(c);
-            canvas.drawRect(0, 0, 2 * W, H1, p2);
+            canvas.drawRect(0, 0, 2 * UIValueHolder.W, UIValueHolder.H1, p2);
+            doColors();
             drawClock(canvas, true, 0);
             drawTime(canvas);
         }
 
+
         canvas.restore();
+
 
 
 
     }
 
     void fillColor(int x2, int c) {
-        for (; x<x2; x++) col[x] = c;
+        for (; UIValueHolder.x<x2; UIValueHolder.x++) UIValueHolder.col[UIValueHolder.x] = c;
     }
     void graded(int x2, int c1, int c2) {
         float[] f1 = {Color.alpha(c1),Color.red(c1),Color.green(c1),Color.blue(c1)};
@@ -133,34 +111,34 @@ public class DayViewLegacy extends View{
         System.out.println(f1);
 
         float[] d = {0,0,0,0};
-        int x1 = x;
+        int x1 = UIValueHolder.x;
         for (int k=0; k<3; k++)
             d[k] = (f2[k] - f1[k])/(x2 - x1);
-        for (; x<x2; x++) {
+        for (; UIValueHolder.x<x2; UIValueHolder.x++) {
             float[] c = {0,0,0};
             for (int k=0; k<3; k++)
-                c[k] = f1[k] + d[k]*(x - x1);
-            col[x] = Color.rgb((int)c[0], (int)c[1], (int)c[2]);
+                c[k] = f1[k] + d[k]*(UIValueHolder.x - x1);
+            UIValueHolder.col[UIValueHolder.x] = Color.rgb((int)c[0], (int)c[1], (int)c[2]);
         }
     }
     public void doColors() {
-        x = 0;  // field used in calculation
-        fillColor(2+v_ogle()/K, RED);
-        fillColor(v_ikindi()/K, NOON);
-        graded((v_ikindi()+80)/K, NOON, DARK);
-        fillColor((model.sunset()-40)/K, DARK);
-        graded(model.sunset()/K, DARK, RED);
-        fillColor(v_aksam()/K, RED);
-        graded(-v_imsak()/K, BLUE, Color.BLACK);  //v_yatsi()
+        UIValueHolder.x = 0;  // field used in calculation
+        fillColor(2+v_ogle()/UIValueHolder.K, UIValueHolder.RED);
+        fillColor(v_ikindi()/UIValueHolder.K, UIValueHolder.NOON);
+        graded((v_ikindi()+80)/UIValueHolder.K, UIValueHolder.NOON, UIValueHolder.DARK);
+        fillColor((UIValueHolder.model.sunset()-40)/UIValueHolder.K, UIValueHolder.DARK);
+        graded(UIValueHolder.model.sunset()/UIValueHolder.K, UIValueHolder.DARK, UIValueHolder.RED);
+        fillColor(v_aksam()/UIValueHolder.K, UIValueHolder.RED);
+        graded(-v_imsak()/UIValueHolder.K, UIValueHolder.BLUE, Color.BLACK);  //v_yatsi()
         //System.out.printf("%s: %s %s\n", VER, v_aksam(), v_yatsi());
-        fillColor(W, Color.BLACK);
+        fillColor(UIValueHolder.W, Color.BLACK);
         shadowLength(); setMinute(0);  // noon
     }
     void shadowLength() {
-        for (int i=0; i<W; i++) {
+        for (int i=0; i<UIValueHolder.W; i++) {
             //float a = model.altitude(K*i);
             int s = 0;  //Math.round(H2/model.tan(a));
-            shade[i] = (s<0 || s>W ? W : s); // if too large, clip
+            UIValueHolder.shade[i] = (s<0 || s>UIValueHolder.W ? UIValueHolder.W : s); // if too large, clip
         }
     }
     public void doTitle() {
@@ -168,27 +146,27 @@ public class DayViewLegacy extends View{
     }
     public void setDate(String s) {
         try {
-            model.setDate(DATE.parse(s));
+            UIValueHolder.model.setDate(UIValueHolder.DATE.parse(s));
             setState(120);
         } catch (ParseException ex) {
             setCurrentTime();
         }
     }
     public void setMinute(int m) {
-        x = m/K;  // pixels
-        if (x < -W) x += 2*W;
-        if (x >= W) x -= 2*W;
+        UIValueHolder.x = m/UIValueHolder.K;  // pixels
+        if (UIValueHolder.x < -UIValueHolder.W) UIValueHolder.x += 2*UIValueHolder.W;
+        if (UIValueHolder.x >= UIValueHolder.W) UIValueHolder.x -= 2*UIValueHolder.W;
         long t1 = 0; //Math.round((model.noonM + m + 0.5)*60);
-        model.setTime(t1*1000);
-        alfa = "0�";  //Math.round(model.altitude(m))+"�";
+        UIValueHolder.model.setTime(t1*1000);
+        UIValueHolder.alfa = "0";  //Math.round(model.altitude(m))+"�";
 //        view.repaint();
     }
     public void setCurrentTime() {
         long t = System.currentTimeMillis();
-        double d = model.day;  //Timer.toJulian(t);
-        if (model.day != (int)d) {
-            System.out.printf("setCurrentTime: %s %s %n", model.day, d);
-            model.setDate(d, true); //model.report();
+        double d = UIValueHolder.model.day;  //Timer.toJulian(t);
+        if (UIValueHolder.model.day != (int)d) {
+            System.out.printf("setCurrentTime: %s %s %n", UIValueHolder.model.day, d);
+            UIValueHolder.model.setDate(d, true); //model.report();
         }
         int m = 0;  //(int)Math.round(t/60/1000 - model.noonM);
         setMinute(m);
@@ -205,65 +183,73 @@ public class DayViewLegacy extends View{
 //        if (thd != null) thd.interrupt();
     }
     public void stop() {
-        thd = null;
+
     }
 
 
     public String toString() {
-        return model.toString();
+        return UIValueHolder.model.toString();
     }
-    int v_imsak()  { return model.v_imsak(); }
-    int v_ogle()   { return model.v_ogle(); }
-    int v_ikindi() { return model.v_ikindi(); }
-    int v_aksam()  { return model.v_aksam(); }
+    int v_imsak()  { return UIValueHolder.model.v_imsak(); }
+    int v_ogle()   { return UIValueHolder.model.v_ogle(); }
+    int v_ikindi() { return UIValueHolder.model.v_ikindi(); }
+    int v_aksam()  { return UIValueHolder.model.v_aksam(); }
 
 
     void line(Canvas canvas, int i, int c) {
         Paint p = new Paint();
-        p.setColor(c);
-        canvas.drawLine(W + i, H1, W + i, H1 + H2, p);
-        canvas.drawLine(W-i, H1, W-i, H1+H2,p);
+
+        System.out.println("DRAWLINE : " + (UIValueHolder.W + i) + "," + (UIValueHolder.H1) + "," + (UIValueHolder.W + i) + "," + (UIValueHolder.H1 + UIValueHolder.H2) + ":COLOR:" + c);
+//        p.setColor(c);
+        p.setColor(Color.BLACK);
+        canvas.drawLine(UIValueHolder.W + i, UIValueHolder.H1, UIValueHolder.W + i, UIValueHolder.H1 + UIValueHolder.H2, p);
+        canvas.drawLine(UIValueHolder.W-i, UIValueHolder.H1, UIValueHolder.W-i, UIValueHolder.H1+UIValueHolder.H2,p);
     }
     void drawTime(Canvas canvas) {
         Paint p = new Paint();
         p.setColor(Color.BLACK);
-        int y = 60/K;
-        if (state != 0 /*fast*/) canvas.drawText(MSG, 600 / K, y, p);
-        int[] a = {W+x-DELTA, W+x, W+x+DELTA};
-        int[] b = {H1+H2+DELTA+1, H1+H2+1, H1+H2+DELTA+1};
+        int y = 60/UIValueHolder.K;
+        if (UIValueHolder.state != 0 /*fast*/) canvas.drawText(UIValueHolder.MSG, 600 / UIValueHolder.K, y, p);
+        int[] a = {UIValueHolder.W+UIValueHolder.x-UIValueHolder.DELTA, UIValueHolder.W+UIValueHolder.x, UIValueHolder.W+UIValueHolder.x+UIValueHolder.DELTA};
+        int[] b = {UIValueHolder.H1+UIValueHolder.H2+UIValueHolder.DELTA+1, UIValueHolder.H1+UIValueHolder.H2+1,
+                UIValueHolder.H1+UIValueHolder.H2+UIValueHolder.DELTA+1};
 
 //        g.fillPolygon(a, b, 3);
         p.setColor(Color.YELLOW);
-        canvas.drawText(model.ddMMyyyy(), GAP, y, p);
+        canvas.drawText(UIValueHolder.model.ddMMyyyy(), UIValueHolder.GAP, y, p);
 //        g.drawString(model.loc.toString(), GAP, 2*y);
-        canvas.drawText(alfa, 2 * W - 90 / K, y, p);
-        for (int i=0; i<W; i++)  // draw colors
-            line(canvas, i, col[i]);
-        canvas.drawLine(0, H1, 0, H1 + H2, p); // missing line at the left
+        canvas.drawText(UIValueHolder.alfa, 2 * UIValueHolder.W - 90 / UIValueHolder.K, y, p);
+        for (int i=0; i<UIValueHolder.W; i++)  // draw colors
+            line(canvas, i, UIValueHolder.col[i]);
+        canvas.drawLine(0, UIValueHolder.H1, 0, UIValueHolder.H1 + UIValueHolder.H2, p); // missing line at the left
     }
     void drawCurve(Canvas canvas) {
-        int down = curve[(int)model.sunset()/K+DELTA] - DELTA - H1; //
+        int down = UIValueHolder.curve[(int)UIValueHolder.model.sunset()/UIValueHolder.K+UIValueHolder.DELTA] - UIValueHolder.DELTA - UIValueHolder.H1; //
 
         Paint p = new Paint();
 
         p.setColor(Color.GRAY);
-        int x1 = 0; int y1 = curve[x1] - down;
-        while (x1 < W) {
-            int x2 = x1+8; int y2 = curve[x2] - down;
-            canvas.drawLine(W + x1, y1, W + x2, y2, p);
-            canvas.drawLine(W - x1, y1, W - x2, y2, p);
-            if (y2 > H1) break;
+        int x1 = 0; int y1 = UIValueHolder.curve[x1] - down;
+        while (x1 < UIValueHolder.W) {
+            int x2 = x1+8; int y2 = UIValueHolder.curve[x2] - down;
+            canvas.drawLine(UIValueHolder.W + x1, y1, UIValueHolder.W + x2, y2, p);
+            canvas.drawLine(UIValueHolder.W - x1, y1, UIValueHolder.W - x2, y2, p);
+            if (y2 > UIValueHolder.H1) break;
             x1 = x2; y1 = y2;
         }
         drawClock(canvas, false, down);
-        int y = curve[Math.abs(x)] - down;
+        int y = UIValueHolder.curve[Math.abs(UIValueHolder.x)] - down;
         //System.out.printf("x=%s y=%s \n", x, y);
         Paint p2 = new Paint();
         p2.setColor(Color.YELLOW);
         p2.setStyle(Paint.Style.FILL_AND_STROKE);
 
-        RectF rectF = new RectF( W + x - DELTA / 2, y - DELTA / 2, DELTA+(W + x - DELTA / 2), DELTA+(y - DELTA / 2));
-        canvas.drawOval(rectF, p2);
+        RectF rectF = new RectF( UIValueHolder.W + UIValueHolder.x - UIValueHolder.DELTA / 2,
+                y - UIValueHolder.DELTA / 2, UIValueHolder.DELTA+(UIValueHolder.W + UIValueHolder.x - UIValueHolder.DELTA / 2),
+                UIValueHolder.DELTA+(y - UIValueHolder.DELTA / 2));
+
+
+        //        canvas.drawOval(oval,paint);
 
     }
     void drawClock(Canvas canvas, boolean night, int down) {
@@ -272,28 +258,28 @@ public class DayViewLegacy extends View{
         if (night) p.setColor(Color.WHITE);
         else p.setColor(Color.BLACK);
 
-        int min = model.twelve - 12*60; //12 hours
+        int min = UIValueHolder.model.twelve - 12*60; //12 hours
         int c = 0; // start at 12am
         for (int i=min; i<-min; i+=60) {
-            int x = W + i/K;
-            int y = H1 - 4/K;
+            int x = UIValueHolder.W + i/UIValueHolder.K;
+            int y = UIValueHolder.H1 - 4/UIValueHolder.K;
             if (!night) {
-                int k = Math.min(W-1, Math.abs(i/K));
-                y = (curve[k] - down);
-                if (y >= H1) y = H1 - 4/K;
+                int k = Math.min(UIValueHolder.W-1, Math.abs(i/UIValueHolder.K));
+                y = (UIValueHolder.curve[k] - down);
+                if (y >= UIValueHolder.H1) y = UIValueHolder.H1 - 4/UIValueHolder.K;
             }
-            canvas.drawText(d2s[c % 24], x - 12 / K, y - 10 / K, p);
-            canvas.drawRect(x - 1, y - 1, (4 / K)+(x-1) , (4 / K)+(y-1), p);
+            canvas.drawText(UIValueHolder.d2s[c % 24], x - 12 / UIValueHolder.K, y - 10 / UIValueHolder.K, p);
+            canvas.drawRect(x - 1, y - 1, (4 / UIValueHolder.K)+(x-1) , (4 / UIValueHolder.K)+(y-1), p);
             c++; //if (c==12) System.out.printf("x=%s y=%s \n", x, y);
         }
         //System.out.printf("min=%s count=%s \n", min, c);
     }
     void drawShadow(Canvas canvas) {
-        int z = v_ogle()/K;
-        int d = (x>z? -1 : 1);  // direction of the shadow
-        int x1 = W+1 + d*z;
-        int x2 = x1+ d*shade[Math.abs(x)];
-        int y = H1+H2;
+        int z = v_ogle()/UIValueHolder.K;
+        int d = (UIValueHolder.x>z? -1 : 1);  // direction of the shadow
+        int x1 = UIValueHolder.W+1 + d*z;
+        int x2 = x1+ d*UIValueHolder.shade[Math.abs(UIValueHolder.x)];
+        int y = UIValueHolder.H1+UIValueHolder.H2;
         Paint p = new Paint();
 
         canvas.drawLine(x1, y, x2, y, p);
