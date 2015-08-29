@@ -18,10 +18,6 @@ public class DayViewLegacy extends ImageView{
 
     public DayViewLegacy(Context context) {
         super(context);
-        UIValueHolder.init(getWidth());
-        doTitle();
-        setState(0);
-        setCurrentTime();  // initialize data
     }
 
         Paint p = new Paint();
@@ -96,13 +92,13 @@ public class DayViewLegacy extends ImageView{
     }
     public void doColors() {
         UIValueHolder.x = 0;  // field used in calculation
-        fillColor(2+v_ogle()/UIValueHolder.K, UIValueHolder.RED);
-        fillColor(v_ikindi()/UIValueHolder.K, UIValueHolder.NOON);
-        graded((v_ikindi()+80)/UIValueHolder.K, UIValueHolder.NOON, UIValueHolder.DARK);
-        fillColor((UIValueHolder.model.sunset()-40)/UIValueHolder.K, UIValueHolder.DARK);
-        graded(UIValueHolder.model.sunset()/UIValueHolder.K, UIValueHolder.DARK, UIValueHolder.RED);
-        fillColor(v_aksam()/UIValueHolder.K, UIValueHolder.RED);
-        graded(-v_imsak()/UIValueHolder.K, UIValueHolder.BLUE, Color.BLACK);  //v_yatsi()
+        fillColor(2+(int)(v_ogle()/UIValueHolder.K), UIValueHolder.RED);
+        fillColor((int)(v_ikindi()/UIValueHolder.K), UIValueHolder.NOON);
+        graded((int)((v_ikindi()+80)/UIValueHolder.K), UIValueHolder.NOON, UIValueHolder.DARK);
+        fillColor((int)((UIValueHolder.model.sunset()-40)/UIValueHolder.K), UIValueHolder.DARK);
+        graded((int)(UIValueHolder.model.sunset()/UIValueHolder.K), UIValueHolder.DARK, UIValueHolder.RED);
+        fillColor((int)(v_aksam()/UIValueHolder.K), UIValueHolder.RED);
+        graded((int)(-v_imsak()/UIValueHolder.K), UIValueHolder.BLUE, Color.BLACK);  //v_yatsi()
         //System.out.printf("%s: %s %s\n", VER, v_aksam(), v_yatsi());
         fillColor(UIValueHolder.W, Color.BLACK);
         shadowLength(); setMinute(0);  // noon
@@ -126,7 +122,7 @@ public class DayViewLegacy extends ImageView{
         }
     }
     public void setMinute(int m) {
-        UIValueHolder.x = m/UIValueHolder.K;  // pixels
+        UIValueHolder.x = (int)(m/UIValueHolder.K);  // pixels
         if (UIValueHolder.x < -UIValueHolder.W) UIValueHolder.x += 2*UIValueHolder.W;
         if (UIValueHolder.x >= UIValueHolder.W) UIValueHolder.x -= 2*UIValueHolder.W;
         long t1 = 0; //Math.round((model.noonM + m + 0.5)*60);
@@ -181,7 +177,7 @@ public class DayViewLegacy extends ImageView{
     void drawTime(Canvas canvas) {
         Paint p = new Paint();
         p.setColor(Color.BLACK);
-        int y = 60/UIValueHolder.K;
+        int y = (int)(60/UIValueHolder.K);
         if (UIValueHolder.state != 0 /*fast*/) canvas.drawText(UIValueHolder.MSG, 600 / UIValueHolder.K, y, p);
         int[] a = {UIValueHolder.W+UIValueHolder.x-UIValueHolder.DELTA, UIValueHolder.W+UIValueHolder.x, UIValueHolder.W+UIValueHolder.x+UIValueHolder.DELTA};
         int[] b = {UIValueHolder.H1+UIValueHolder.H2+UIValueHolder.DELTA+1, UIValueHolder.H1+UIValueHolder.H2+1,
@@ -199,7 +195,7 @@ public class DayViewLegacy extends ImageView{
     void drawCurve(Canvas canvas) {
 
         System.out.println("drawCurve : W "+ UIValueHolder.W);
-        int down = UIValueHolder.curve[(int)UIValueHolder.model.sunset()/UIValueHolder.K+UIValueHolder.DELTA] - UIValueHolder.DELTA - UIValueHolder.H1; //
+        int down = UIValueHolder.curve[(int)(UIValueHolder.model.sunset()/UIValueHolder.K)+UIValueHolder.DELTA] - UIValueHolder.DELTA - UIValueHolder.H1; //
 
         Paint p = new Paint();
 
@@ -240,12 +236,12 @@ public class DayViewLegacy extends ImageView{
         int min = UIValueHolder.model.twelve - 12*60; //12 hours
         int c = 0; // start at 12am
         for (int i=min; i<-min; i+=60) {
-            int x = UIValueHolder.W + i/UIValueHolder.K;
-            int y = UIValueHolder.H1 - 4/UIValueHolder.K;
+            int x = (int)(UIValueHolder.W + i/UIValueHolder.K);
+            int y = UIValueHolder.H1 - (int)(4/UIValueHolder.K);
             if (!night) {
-                int k = Math.min(UIValueHolder.W-1, Math.abs(i/UIValueHolder.K));
+                int k = Math.min(UIValueHolder.W-1, Math.abs((int)(i/UIValueHolder.K)));
                 y = (UIValueHolder.curve[k] - down);
-                if (y >= UIValueHolder.H1) y = UIValueHolder.H1 - 4/UIValueHolder.K;
+                if (y >= UIValueHolder.H1) y = UIValueHolder.H1 - (int)(4/UIValueHolder.K);
             }
             canvas.drawText(UIValueHolder.d2s[c % 24], x - 12 / UIValueHolder.K, y - 10 / UIValueHolder.K, p);
             canvas.drawRect(x - 1, y - 1, (4 / UIValueHolder.K)+(x-1) , (4 / UIValueHolder.K)+(y-1), p);
@@ -254,7 +250,7 @@ public class DayViewLegacy extends ImageView{
         //System.out.printf("min=%s count=%s \n", min, c);
     }
     void drawShadow(Canvas canvas) {
-        int z = v_ogle()/UIValueHolder.K;
+        int z = (int)(v_ogle()/UIValueHolder.K);
         int d = (UIValueHolder.x>z? -1 : 1);  // direction of the shadow
         int x1 = UIValueHolder.W+1 + d*z;
         int x2 = x1+ d*UIValueHolder.shade[Math.abs(UIValueHolder.x)];

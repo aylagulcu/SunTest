@@ -37,7 +37,7 @@ public class SunView extends View {
 
 
 
-        int down = UIValueHolder.curve[(int)UIValueHolder.model.sunset()/UIValueHolder.K+UIValueHolder.DELTA] - UIValueHolder.DELTA - UIValueHolder.H1; //
+        int down = UIValueHolder.curve[(int)(UIValueHolder.model.sunset()/UIValueHolder.K)+UIValueHolder.DELTA] - UIValueHolder.DELTA - UIValueHolder.H1; //
         int y = UIValueHolder.curve[Math.abs(UIValueHolder.x)] - down;
 
         RectF rectF = new RectF( (canvas.getWidth()*progress/100)- UIValueHolder.DELTA/2 ,

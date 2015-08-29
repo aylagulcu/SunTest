@@ -19,8 +19,9 @@ public class UIValueHolder {
                     +"<BR>Siyah: yatsı <BR>Kırmızı: kerahat";
 
     public static final boolean WIDE = false;
+    public static float K;
+
     public static int
-            K = WIDE? 1 : 2,
             W ,  //half width
             GAP = WIDE? 15 : 10,
             M = WIDE? 135 : 90, //used in cosine curve
@@ -57,8 +58,14 @@ public class UIValueHolder {
 
         float scale = W/360f;
 
+//        float coef = width < 720 ?  2 : 1;
+        float coef = 2;
 
-        K= (int)( 2 /scale);
+        System.out.println("coef: "+ coef);
+
+        K= coef /scale;
+
+
         GAP = (int)(10*scale);
         M = (int)(90*scale); //used in cosine curve
         H1 = (int)(200*scale);
