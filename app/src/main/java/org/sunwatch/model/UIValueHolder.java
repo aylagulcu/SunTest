@@ -1,5 +1,6 @@
 package org.sunwatch.model;
 
+import android.content.res.Configuration;
 import android.graphics.Color;
 
 import java.text.SimpleDateFormat;
@@ -48,13 +49,16 @@ public class UIValueHolder {
 
     public static void init(int width){
 
-        W = width;
+
+        W = width/2;
         curve = new int[W];
         col = new int[W];
         shade = new int[W];
 
-        float scale = W/360;
+        float scale = W/360f;
 
+
+        K= (int)( 2 /scale);
         GAP = (int)(10*scale);
         M = (int)(90*scale); //used in cosine curve
         H1 = (int)(200*scale);
@@ -68,7 +72,7 @@ public class UIValueHolder {
         for (int i=10; i<24; i++)
             UIValueHolder.d2s[i] = ""+i;
         // cosine curve used in drawCurve()
-        for (int d=0; d<UIValueHolder.W; d++)
+        for (int d=0; d<W; d++)
             UIValueHolder.curve[d] = UIValueHolder.H1 - (int)Math.round(UIValueHolder.M*Math.cos(Math.PI*d/UIValueHolder.W));
 
         UIValueHolder.DATE.setTimeZone(TimeZone.getTimeZone("GMT"));

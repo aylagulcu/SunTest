@@ -24,7 +24,7 @@ public class SunView extends View {
     protected void onDraw(Canvas canvas) {
 
 
-        UIValueHolder.x = (360/50)*Math.abs(progress-50);
+        UIValueHolder.x = (int)(UIValueHolder.W/50f)*Math.abs(progress-50);
 
         float x = UIValueHolder.W + UIValueHolder.x - UIValueHolder.DELTA / 2;
 

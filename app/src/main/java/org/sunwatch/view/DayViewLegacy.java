@@ -4,18 +4,12 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.RectF;
-import android.location.Location;
-import android.view.View;
 import android.widget.ImageView;
 
+import org.sunwatch.activity.MainActivity;
 import org.sunwatch.model.UIValueHolder;
-import org.sunwatch.model.Vakit;
 
-import java.io.Reader;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
 
 /**
  * Created by gungor on 21/08/15.
@@ -182,7 +176,7 @@ public class DayViewLegacy extends ImageView{
         p.setColor(c);
 //        p.setColor(Color.BLACK);
         canvas.drawLine(UIValueHolder.W + i, UIValueHolder.H1, UIValueHolder.W + i, UIValueHolder.H1 + UIValueHolder.H2, p);
-        canvas.drawLine(UIValueHolder.W-i, UIValueHolder.H1, UIValueHolder.W-i, UIValueHolder.H1+UIValueHolder.H2,p);
+        canvas.drawLine(UIValueHolder.W - i, UIValueHolder.H1, UIValueHolder.W - i, UIValueHolder.H1 + UIValueHolder.H2, p);
     }
     void drawTime(Canvas canvas) {
         Paint p = new Paint();
@@ -212,11 +206,13 @@ public class DayViewLegacy extends ImageView{
 
         int W = UIValueHolder.W;
 
+        System.out.println("W : "+ W);
+
         p.setColor(Color.YELLOW);
         int x1 = 0;
         int y1 = UIValueHolder.curve[x1] - down;
 
-        while (x1 < W) {
+        while (x1+8 < W) {
             int x2 = x1+8;
             int y2 = UIValueHolder.curve[x2] - down;
             System.out.println("drawline + : "+ (W + x1) +","+y1+","+ (W + x2)+","+ y2);

@@ -1,7 +1,9 @@
 package org.sunwatch.activity;
 
+import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -124,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
         for( int i=0; i<4; i++ ){
             c.add(Calendar.DATE, 1);  // number of days to add
-            dateList.add( dateFormat.format( c.getTime() ) );
+            dateList.add( dateFormat.format(c.getTime()) );
         }
 
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
