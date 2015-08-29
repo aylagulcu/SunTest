@@ -22,24 +22,9 @@ import java.util.TimeZone;
  */
 public class DayViewLegacy extends ImageView{
 
-
-    static {
-        // String[] used in drawClock()
-        for (int i=0; i<10; i++) UIValueHolder.d2s[i] = "0"+i;
-        for (int i=10; i<24; i++) UIValueHolder.d2s[i] = ""+i;
-        // cosine curve used in drawCurve()
-        for (int d=0; d<UIValueHolder.W; d++)
-            UIValueHolder.curve[d] = UIValueHolder.H1 - (int)Math.round(UIValueHolder.M*Math.cos(Math.PI*d/UIValueHolder.W));
-        // for Java 6
-        //java.util.TimeZone.setDefault(Location.DEFAULT.zone);
-        UIValueHolder.DATE.setTimeZone(TimeZone.getTimeZone("GMT"));
-    }
-
-
-
-
     public DayViewLegacy(Context context) {
         super(context);
+        UIValueHolder.init(getWidth());
         doTitle();
         setState(0);
         setCurrentTime();  // initialize data
@@ -49,21 +34,18 @@ public class DayViewLegacy extends ImageView{
 
     @Override
     protected void onDraw(Canvas canvas) {
+        UIValueHolder.init(getWidth());
+        doTitle();
+        setState(0);
+        setCurrentTime();  // initialize data
 
         System.out.println("canvas.getClipBounds() : ");
         System.out.println( canvas.getClipBounds() );
         System.out.println("canvas.getWidth() : ");
-        System.out.println( canvas.getWidth() );
+        System.out.println(canvas.getWidth());
         System.out.println("canvas.getClipBounds() : ");
         System.out.println(canvas.getClipBounds());
 
-        float scale = canvas.getWidth() / 720f;
-
-        System.out.println("scale :" + scale);
-
-
-        canvas.save();
-        canvas.scale(scale, 1f);
 
 
         canvas.clipRect(0, 0, 2 * UIValueHolder.W + UIValueHolder.GAP, UIValueHolder.H1 + 2 * UIValueHolder.H2);
@@ -93,22 +75,19 @@ public class DayViewLegacy extends ImageView{
         }
 
 
-        canvas.restore();
-
-
-
-
     }
 
     void fillColor(int x2, int c) {
-        for (; UIValueHolder.x<x2; UIValueHolder.x++) UIValueHolder.col[UIValueHolder.x] = c;
+        for (; UIValueHolder.x<x2; UIValueHolder.x++)
+            UIValueHolder.col[UIValueHolder.x] = c;
     }
     void graded(int x2, int c1, int c2) {
         float[] f1 = {Color.alpha(c1),Color.red(c1),Color.green(c1),Color.blue(c1)};
         float[] f2 = {Color.alpha(c2),Color.red(c2),Color.green(c2),Color.blue(c2)};
 
         System.out.println("f1");
-        System.out.println(f1);
+        System.out.println(f1[0] + "," + f1[1] + "," + f1[2] + "," + f1[3]);
+        System.out.println(f2[0] + "," + f2[1] + "," + f2[2] + "," + f2[3]);
 
         float[] d = {0,0,0,0};
         int x1 = UIValueHolder.x;
@@ -200,8 +179,8 @@ public class DayViewLegacy extends ImageView{
         Paint p = new Paint();
 
         System.out.println("DRAWLINE : " + (UIValueHolder.W + i) + "," + (UIValueHolder.H1) + "," + (UIValueHolder.W + i) + "," + (UIValueHolder.H1 + UIValueHolder.H2) + ":COLOR:" + c);
-//        p.setColor(c);
-        p.setColor(Color.BLACK);
+        p.setColor(c);
+//        p.setColor(Color.BLACK);
         canvas.drawLine(UIValueHolder.W + i, UIValueHolder.H1, UIValueHolder.W + i, UIValueHolder.H1 + UIValueHolder.H2, p);
         canvas.drawLine(UIValueHolder.W-i, UIValueHolder.H1, UIValueHolder.W-i, UIValueHolder.H1+UIValueHolder.H2,p);
     }
@@ -224,32 +203,36 @@ public class DayViewLegacy extends ImageView{
         canvas.drawLine(0, UIValueHolder.H1, 0, UIValueHolder.H1 + UIValueHolder.H2, p); // missing line at the left
     }
     void drawCurve(Canvas canvas) {
+
+        System.out.println("drawCurve : W "+ UIValueHolder.W);
         int down = UIValueHolder.curve[(int)UIValueHolder.model.sunset()/UIValueHolder.K+UIValueHolder.DELTA] - UIValueHolder.DELTA - UIValueHolder.H1; //
 
         Paint p = new Paint();
 
-        p.setColor(Color.GRAY);
-        int x1 = 0; int y1 = UIValueHolder.curve[x1] - down;
-        while (x1 < UIValueHolder.W) {
-            int x2 = x1+8; int y2 = UIValueHolder.curve[x2] - down;
-            canvas.drawLine(UIValueHolder.W + x1, y1, UIValueHolder.W + x2, y2, p);
-            canvas.drawLine(UIValueHolder.W - x1, y1, UIValueHolder.W - x2, y2, p);
-            if (y2 > UIValueHolder.H1) break;
-            x1 = x2; y1 = y2;
+
+        int W = UIValueHolder.W;
+
+        p.setColor(Color.YELLOW);
+        int x1 = 0;
+        int y1 = UIValueHolder.curve[x1] - down;
+
+        while (x1 < W) {
+            int x2 = x1+8;
+            int y2 = UIValueHolder.curve[x2] - down;
+            System.out.println("drawline + : "+ (W + x1) +","+y1+","+ (W + x2)+","+ y2);
+            System.out.println("drawline - : "+ (W - x1) +","+y1+","+ (W - x2)+","+ y2);
+
+            canvas.drawLine(W + x1, y1, W + x2, y2, p);
+            canvas.drawLine(W - x1, y1, W - x2, y2, p);
+            if (y2 > UIValueHolder.H1) {
+                break;
+            }
+            x1 = x2;
+            y1 = y2;
         }
         drawClock(canvas, false, down);
         int y = UIValueHolder.curve[Math.abs(UIValueHolder.x)] - down;
-        //System.out.printf("x=%s y=%s \n", x, y);
-        Paint p2 = new Paint();
-        p2.setColor(Color.YELLOW);
-        p2.setStyle(Paint.Style.FILL_AND_STROKE);
 
-        RectF rectF = new RectF( UIValueHolder.W + UIValueHolder.x - UIValueHolder.DELTA / 2,
-                y - UIValueHolder.DELTA / 2, UIValueHolder.DELTA+(UIValueHolder.W + UIValueHolder.x - UIValueHolder.DELTA / 2),
-                UIValueHolder.DELTA+(y - UIValueHolder.DELTA / 2));
-
-
-        //        canvas.drawOval(oval,paint);
 
     }
     void drawClock(Canvas canvas, boolean night, int down) {

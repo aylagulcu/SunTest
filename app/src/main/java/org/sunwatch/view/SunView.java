@@ -26,7 +26,6 @@ public class SunView extends View {
 
         UIValueHolder.x = (360/50)*Math.abs(progress-50);
 
-        float scale = canvas.getWidth() / 720f;
         float x = UIValueHolder.W + UIValueHolder.x - UIValueHolder.DELTA / 2;
 
         Paint p = new Paint();
