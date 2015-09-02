@@ -24,9 +24,9 @@ public class SunView extends View {
     protected void onDraw(Canvas canvas) {
 
 
-        UIValueHolder.x = (int)(UIValueHolder.W/50f)*Math.abs(progress-50);
+        UIValueHolder.x = (int)(UIValueHolder.W/50f)*(progress-50);
 
-        float x = UIValueHolder.W + UIValueHolder.x - UIValueHolder.DELTA / 2;
+        int x = UIValueHolder.W + UIValueHolder.x - UIValueHolder.DELTA / 2;
 
         Paint p = new Paint();
         p.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -40,8 +40,8 @@ public class SunView extends View {
         int down = UIValueHolder.curve[(int)(UIValueHolder.model.sunset()/UIValueHolder.K)+UIValueHolder.DELTA] - UIValueHolder.DELTA - UIValueHolder.H1; //
         int y = UIValueHolder.curve[Math.abs(UIValueHolder.x)] - down;
 
-        RectF rectF = new RectF( (canvas.getWidth()*progress/100)- UIValueHolder.DELTA/2 ,
-                y - UIValueHolder.DELTA / 2, (canvas.getWidth()*progress/100) + UIValueHolder.DELTA/2,
+        RectF rectF = new RectF( x ,
+                y - UIValueHolder.DELTA / 2, x + UIValueHolder.DELTA,
                 UIValueHolder.DELTA+(y - UIValueHolder.DELTA / 2));
 
         canvas.drawOval(rectF, p);
