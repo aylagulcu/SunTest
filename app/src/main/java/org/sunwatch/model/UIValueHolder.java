@@ -31,11 +31,13 @@ public class UIValueHolder {
             SIZE = WIDE? 18 : 12;
 
     public static final int
-            BLACK = Color.BLACK,
-            BLUE  = Color.BLUE,
-            RED   = Color.RED,
-            NOON  = Color.YELLOW, //yellow
-            DARK  = Color.GRAY;  //dark yellow
+            BLACK =  Color.rgb(0, 0, 0),
+            BLUE  =  Color.rgb(130, 175, 255), //145, 190, 240),
+            RED   =  Color.rgb(255, 0, 0),
+            NOON  =  Color.rgb(255, 250, 120), //yellow
+            DARK  =  Color.rgb(235, 215, 0);
+
+
     public static int[] curve;
     public static final String[] d2s = new String[24];
     public static final SimpleDateFormat DATE = new SimpleDateFormat("dd/MM/yyyy");

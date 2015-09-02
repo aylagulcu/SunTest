@@ -72,8 +72,8 @@ public class DayViewLegacy extends ImageView{
             UIValueHolder.col[UIValueHolder.x] = c;
     }
     void graded(int x2, int c1, int c2) {
-        float[] f1 = {Color.alpha(c1),Color.red(c1),Color.green(c1),Color.blue(c1)};
-        float[] f2 = {Color.alpha(c2),Color.red(c2),Color.green(c2),Color.blue(c2)};
+        float[] f1 = {Color.red(c1),Color.green(c1),Color.blue(c1),Color.alpha(c1)};
+        float[] f2 = {Color.red(c2),Color.green(c2),Color.blue(c2),Color.alpha(c2)};
 
         System.out.println("f1");
         System.out.println(f1[0] + "," + f1[1] + "," + f1[2] + "," + f1[3]);
@@ -92,9 +92,9 @@ public class DayViewLegacy extends ImageView{
     }
     public void doColors() {
         UIValueHolder.x = 0;  // field used in calculation
-        fillColor(2+(int)(v_ogle()/UIValueHolder.K), UIValueHolder.RED);
+        fillColor(2+(int)(v_ogle()/(UIValueHolder.K)), UIValueHolder.RED);
         fillColor((int)(v_ikindi()/UIValueHolder.K), UIValueHolder.NOON);
-        graded((int)((v_ikindi()+80)/UIValueHolder.K), UIValueHolder.NOON, UIValueHolder.DARK);
+        graded((int) ((v_ikindi() + 80) / UIValueHolder.K), UIValueHolder.NOON, UIValueHolder.DARK);
         fillColor((int)((UIValueHolder.model.sunset()-40)/UIValueHolder.K), UIValueHolder.DARK);
         graded((int)(UIValueHolder.model.sunset()/UIValueHolder.K), UIValueHolder.DARK, UIValueHolder.RED);
         fillColor((int)(v_aksam()/UIValueHolder.K), UIValueHolder.RED);
@@ -188,6 +188,9 @@ public class DayViewLegacy extends ImageView{
         canvas.drawText(UIValueHolder.model.ddMMyyyy(), UIValueHolder.GAP, y, p);
 //        g.drawString(model.loc.toString(), GAP, 2*y);
         canvas.drawText(UIValueHolder.alfa, 2 * UIValueHolder.W - 90 / UIValueHolder.K, y, p);
+
+
+
         for (int i=0; i<UIValueHolder.W; i++)  // draw colors
             line(canvas, i, UIValueHolder.col[i]);
         canvas.drawLine(0, UIValueHolder.H1, 0, UIValueHolder.H1 + UIValueHolder.H2, p); // missing line at the left
